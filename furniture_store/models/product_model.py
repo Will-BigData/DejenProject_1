@@ -10,3 +10,4 @@ class Product:
 
     def to_tuple(self):
         return (self.name, self.image, self.category, self.description, self.price, self.in_stock)
+    
