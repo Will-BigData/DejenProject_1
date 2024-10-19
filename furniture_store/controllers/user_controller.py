@@ -37,5 +37,31 @@ class UserController:
         else:
             return None, "User not found"
 
- 
+    @staticmethod
+    def update_user_profile(user_id, name=None, email=None, password=None):
+
+        if password:
+            password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+        updated = UserDao.update_user(user_id, name, email, password)
+
+        if updated:
+            return True, "User profile updated"
+        else:
+            return False, "Error updating user profile"
     
+    @staticmethod
+    def delete_user(user_id):
+        deleted =  UserDao.delete_user(user_id)
+
+        if deleted:
+            return True, "User deleted"
+        else:
+            return False, "Error deleting user"
+
+    @staticmethod
+    def get_all_users():
+        users = UserDao.get_all_users()
+        if users:
+            return users, None
+        else:
+            return None, "Error fetching users"
