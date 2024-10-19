@@ -5,6 +5,7 @@ from DAO.user_dao import UserDao
 import os
 
 class UserController:
+
     @staticmethod
     def register_user(name, email, password):
         existing_user = UserDao.get_user_by_email(email)
@@ -23,3 +24,18 @@ class UserController:
         else:
             return None, "Error registering user"
 
+    @staticmethod
+    def get_user_profile(user_id):
+        user_data = UserDao.get_user_by_id(user_id)
+        if user_data:
+            return {
+                "user_id": user_data["user_id"],
+                "name": user_data["name"],
+                "email": user_data["email"],
+                "is_admin": user_data["is_admin"],
+            }, None
+        else:
+            return None, "User not found"
+
+ 
+    
