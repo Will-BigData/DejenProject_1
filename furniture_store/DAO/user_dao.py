@@ -1,6 +1,9 @@
+
+
 from mysql.connector import connect, Error
 from db.connection import get_db_connection
 
+# this userdao handles the direct interaction with the database.
 class UserDAO:
 
     @staticmethod
