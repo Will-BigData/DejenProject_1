@@ -1,17 +1,16 @@
 
 # Models.py
 
-class SingleOrderItem:
-    def __init__(self, name, count, image, price, product_id):
+class SingleOrderProduct:
+    def __init__(self, name, count, price, product_id):
         self.name = name
         self.count = count
-        self.image = image
         self.price = price
         self.product_id = product_id  # Foreign key to the Product
 
     def to_tuple(self):
         """Converts the SingleOrderItem to a tuple for SQL insertion."""
-        return (self.name, self.count, self.image, self.price, self.product_id)
+        return (self.name, self.count, self.price, self.product_id)
 
 
 class Order:
