@@ -6,31 +6,36 @@ class ProductController:
 
     @staticmethod
     def product_menu():
-        print("Product Menu")
-        print("1. Add New Product")
-        print("2. Get All Products")
-        print("3. Get Product by ID")
-        print("4. Update Product")
-        print("5. Delete Product")
-        print("6. Back to Main Menu")
+        while True:
+            print("Product Menu")
+            print("1. Add New Product")
+            print("2. Get All Products")
+            print("3. Get Product by ID")
+            print("4. Update Product")
+            print("5. Delete Product")
+            print("6. Back to Main Menu")
 
-        choice = input("Enter your choice: ").strip()
+            choice = input("Enter your choice: ").strip()
 
-        if choice == "1":
-            ProductController.add_product()
-        elif choice == "2":
-            ProductController.get_all_products()
-        elif choice == "3":
-            ProductController.get_product_by_id()
-        elif choice == "4":
-            ProductController.update_product()
-        elif choice == "5":
-            ProductController.delete_product()
-        elif choice == "6":
-            return
-        else:
-            print("Invalid choice. Please try again")
-            ProductController.product_menu()
+            if choice == "1":
+                ProductController.add_product()
+            elif choice == "2":
+                ProductController.get_all_products()
+            elif choice == "3":
+                ProductController.get_product_by_id()
+            elif choice == "4":
+                ProductController.update_product()
+            elif choice == "5":
+                ProductController.delete_product()
+            elif choice == "6":
+                return
+            else:
+                print("Invalid choice. Please try again")
+                ProductController.product_menu()
+            
+            cont = input("\nWould you like to continue managing users? (y/n): ").strip().lower()
+            if cont != 'y':
+                break
 
     @staticmethod
     def add_product():
