@@ -92,7 +92,7 @@ class UserDAO:
             cursor.close()
 
     @staticmethod
-    def find_all_users():
+    def get_all_users():
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         

@@ -6,3 +6,6 @@ env
 notes.txt
 ./notes.txt
 .notes.txt
+__pycache__
+./__pycache__
+../__pycache__

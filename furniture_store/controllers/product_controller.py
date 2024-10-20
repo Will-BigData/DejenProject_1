@@ -56,3 +56,33 @@ class ProductController:
         else:
             print("No products found")
     
+    @staticmethod
+    def get_product_by_id():
+        product_id = int(input("Enter product ID: ").strip())
+        product = ProductDAO.get_product_by_id(product_id)
+        if product:
+            print(product)
+        else:
+            print("Product not found")
+    
+    @staticmethod
+    def update_product():
+        product_id = input("Enter product ID to update: ")
+        product = ProductDAO.find_product_by_id(product_id)
+        if not product:
+            print("Product not found.")
+            return
+        
+        name = input(f"Enter new name (current: {product['name']}): ") or product['name']
+        category = input(f"Enter new category (current: {product['category']}): ") or product['category']
+        description = input(f"Enter new description (current: {product['description']}): ") or product['description']
+        price = float(input(f"Enter new price (current: {product['price']}): ") or product['price'])
+        in_stock = int(input(f"Enter new stock quantity (current: {product['in_stock']}): ") or product['in_stock'])
+
+        updated_product = Product(product_id, name, category, description, price, in_stock)
+        updated = ProductDAO.update_product(product_id, updated_product)
+
+        if updated:
+            print(f"Product '{name}' updated successfully.")
+        else:
+            print("Error updating product.")
