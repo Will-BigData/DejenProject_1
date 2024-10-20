@@ -31,6 +31,7 @@ class OrderDAO:
             cursor.close()
             conn.close()
     
+    
     @staticmethod
     def get_order_by_id(order_id):
         try:
@@ -53,11 +54,27 @@ class OrderDAO:
             order_data['items'] = order_items
             return order_data, None
         
-
         except Error as e:
             return None, f"Error fetching order by id: {e}"
         finally:
             cursor.close()
             conn.close()
 
-        
+
+    @staticmethod
+    def get_all_orders():
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            order_query = """ SELECT * FROM orders """
+            cursor.execute(order_query)
+            orders = cursor.fetchall()
+
+            return orders, None if orders else "No orders found."
+        except Error as e:
+            return None, f"Error fetching orders: {e}"
+        finally:
+            cursor.close()
+            conn.close()
+
