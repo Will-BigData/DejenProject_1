@@ -1,18 +1,18 @@
 
 
 import bcrypt
-from DAO.user_dao import UserDao
+from DAO.user_dao import UserDAO
 import os
 
 class UserController:
 
     @staticmethod
     def register_user(name, email, password):
-        existing_user = UserDao.get_user_by_email(email)
+        existing_user = UserDAO.get_user_by_email(email)
         if existing_user:
             return None, "User with that email already exists"
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        user_id = UserDao.insert_user(name, email, hashed_password)
+        user_id = UserDAO.insert_user(name, email, hashed_password)
 
         if user_id:
             return {
@@ -26,7 +26,7 @@ class UserController:
 
     @staticmethod
     def get_user_profile(user_id):
-        user_data = UserDao.get_user_by_id(user_id)
+        user_data = UserDAO.get_user_by_id(user_id)
         if user_data:
             return {
                 "user_id": user_data["user_id"],
@@ -42,7 +42,7 @@ class UserController:
 
         if password:
             password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        updated = UserDao.update_user(user_id, name, email, password)
+        updated = UserDAO.update_user(user_id, name, email, password)
 
         if updated:
             return True, "User profile updated"
@@ -51,7 +51,7 @@ class UserController:
     
     @staticmethod
     def delete_user(user_id):
-        deleted =  UserDao.delete_user(user_id)
+        deleted =  UserDAO.delete_user(user_id)
 
         if deleted:
             return True, "User deleted"
@@ -60,7 +60,7 @@ class UserController:
 
     @staticmethod
     def get_all_users():
-        users = UserDao.get_all_users()
+        users = UserDAO.get_all_users()
         if users:
             return users, None
         else:
