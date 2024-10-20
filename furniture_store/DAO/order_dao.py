@@ -30,4 +30,34 @@ class OrderDAO:
         finally:
             cursor.close()
             conn.close()
+    
+    @staticmethod
+    def get_order_by_id(order_id):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            # fetc the order details
+            order_query = """ SELECT * FROM orders WHERE order_id = %s """
+            cursor.execute(order_query, (order_id,))
+            order_data = cursor.fetchone()
+
+            if not order_data:
+                return None, f"Order not found with ID {order_id}"
+            
+            # fetch the associated order items
+            item_query = """ SELECT * FROM order_items WHERE order_id = %s """
+            cursor.execute(item_query, (order_id,))
+            order_items = cursor.fetchall()
+
+            order_data['items'] = order_items
+            return order_data, None
+        
+
+        except Error as e:
+            return None, f"Error fetching order by id: {e}"
+        finally:
+            cursor.close()
+            conn.close()
+
         
