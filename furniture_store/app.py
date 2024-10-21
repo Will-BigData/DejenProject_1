@@ -1,14 +1,15 @@
 
 from controllers.user_controller import UserController
 from controllers.product_controller import ProductController
-# from controllers.order_controller import OrderController
+from controllers.order_controller import OrderController
 
 
 class App:
     @staticmethod
     def main_menu():
         while True:
-            print("\n===== Welcome to the E-commerce System =====")
+            print("\n===== Welcome to The Furniture Hub =====")
+            print('\n')
             print("1. Manage Products")
             print("2. Manage Users")
             print("3. Manage Orders")
@@ -51,6 +52,14 @@ class App:
 
     @staticmethod
     def order_menu():
+        while True:
+            print("\n===== Order Management =====")
+            OrderController.order_menu()
+            cont = input(
+                "\nWould you like to continue managing orders? (yes/no): ").strip().lower()
+            if cont != 'yes':
+                break
+
         print("\n===== Order Management =====")
 
 
