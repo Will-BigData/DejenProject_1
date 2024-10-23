@@ -36,6 +36,7 @@ class UserController:
             if cont != 'yes':
                 break
 
+
     @staticmethod
     def register_user():
         # register a new user
@@ -43,18 +44,23 @@ class UserController:
         email = input("Enter your email: ").strip()
         password = input("Enter your password: ").strip()
 
+        # Ask if the user is registering as an admin
+        is_admin_input = input("Are you registering as an admin? (yes/no): ").strip().lower()
+        is_admin = True if is_admin_input == 'yes' else False
+
         existing_user = UserDAO.get_user_by_email(email)
         if existing_user:
             print("User with that email already exists.")
             return
 
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        user_id = UserDAO.insert_user(name, email, hashed_password)
+        user_id = UserDAO.insert_user(name, email, hashed_password, is_admin)
 
         if user_id:
             print(f"User {name} registered successfully!")
         else:
             print("Error registering user.")
+
 
     @staticmethod
     def get_user_profile(user_id):
@@ -84,10 +90,14 @@ class UserController:
     
     @staticmethod
     def delete_user():
-        #Method to delete a user 
+    # Method to delete a user
         user_id = input("Enter user ID to delete: ").strip()
-        deleted, message = UserDAO.delete_user(user_id)
-        print(message)
+        deleted = UserDAO.delete_user(user_id)
+        
+        if deleted:
+            print("User deleted successfully")
+        else:
+            print("User ID not found")
 
 
     @staticmethod

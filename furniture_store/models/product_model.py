@@ -9,5 +9,10 @@ class Product:
         self.in_stock = in_stock
 
     def to_tuple(self):
-        return (self.name, self.image, self.category, self.description, self.price, self.in_stock)
+        return (self.name, self.category, self.description, self.price, self.in_stock)
     
+    def adjust_stock(self, count):
+        if self.in_stock >= count:
+            self.in_stock -= count
+        else:
+            raise ValueError("Not enough stock available")

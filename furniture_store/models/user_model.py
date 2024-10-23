@@ -6,11 +6,11 @@ class User:
         self.user_id = user_id
         self.name = name
         self.email = email
-        self.set_password(password) = password
+        self.set_password(password)
         self.is_admin = is_admin
     
     def to_tuple(self):
-        return (self.name, self.email, self.is_admin)
+        return (self.name, self.email, self.hash_password, self.is_admin)
     
     def set_password(self, password):
         self.hash_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())

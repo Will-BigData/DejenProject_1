@@ -35,15 +35,15 @@ class UserDAO:
             
 
     @staticmethod
-    def insert_user(name, email, password):
+    def insert_user(name, email, password, is_admin=False):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         
         try:
             cursor.execute("""
-                INSERT INTO users (name, email, password) 
-                VALUES (%s, %s, %s)
-            """, (name, email, password))
+                INSERT INTO users (name, email, password, is_admin) 
+                VALUES (%s, %s, %s, %s)
+            """, (name, email, password, is_admin))
             connection.commit()
             return cursor.lastrowid  # Return the ID of the inserted user
         except Error as e:
