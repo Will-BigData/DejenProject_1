@@ -8,31 +8,23 @@ class UserDAO:
 
     @staticmethod
     def get_user_by_id(user_id):
-        connection = get_db_connection()
-        cursor = connection.cursor()
         try:
-            cursor.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
-            return cursor.fetchone()
-        except Error as e:
-            print("Error fetching user by id:", e)
+            user_id = int(user_id)  # Ensure user_id is an integer
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            query = "SELECT * FROM users WHERE user_id = %s"
+            cursor.execute(query, (user_id,))
+            user = cursor.fetchone()
+            return user
+        except Exception as e:
+            print(f"Error fetching user by ID: {e}")
             return None
         finally:
-            cursor.close()
-            
-    
-    @staticmethod
-    def get_user_by_email(email):
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        try:
-            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-            return cursor.fetchone()
-        except Error as e:
-            print("Error fetching user by email:", e)
-            return None
-        finally:
-            cursor.close()
-            
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()          
 
     @staticmethod
     def insert_user(name, email, password, is_admin=False):
