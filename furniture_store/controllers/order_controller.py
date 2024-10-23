@@ -38,7 +38,6 @@ class OrderController:
 
     @staticmethod
     def create_order():
-        """Creates a new order by collecting user input and then inserts it into the database."""
         try:
             # Collect the necessary inputs for creating an order
             user_id = input("Enter User ID: ")

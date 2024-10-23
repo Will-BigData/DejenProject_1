@@ -2,12 +2,11 @@
 
 import bcrypt
 from DAO.user_dao import UserDAO
-import os
+
 class UserController:
 
     @staticmethod
     def register_user(name, email, password, is_admin):
-        """Registers a new user."""
         existing_user = UserDAO.get_user_by_email(email)
         if existing_user:
             print("User with that email already exists.")
@@ -23,7 +22,7 @@ class UserController:
 
     @staticmethod
     def login_user(email, password):
-        """Method to login a user with email and password"""
+        #Method to login a user with email and password
         user_data = UserDAO.get_user_by_email(email)
 
         if user_data:
@@ -49,7 +48,6 @@ class UserController:
 
     @staticmethod
     def update_user(user_id):
-        """Update a user's information"""
         name = input("Enter new name: ").strip()
         email = input("Enter new email: ").strip()
         password = input("Enter new password (leave blank to keep current): ").strip()
@@ -64,7 +62,7 @@ class UserController:
 
     @staticmethod
     def delete_user(user_id):
-        """Delete a user by ID"""
+
         deleted = UserDAO.delete_user(user_id)
 
         if deleted:
