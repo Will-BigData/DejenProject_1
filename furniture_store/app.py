@@ -7,7 +7,6 @@ class App:
     
     @staticmethod
     def main_menu():
-        """Main menu with options for registration and login"""
         while True:
             print("\n===== Welcome to The Furniture Hub =====")
             App.print_menu(["Register", "Login", "Exit"])
@@ -26,13 +25,12 @@ class App:
 
     @staticmethod
     def print_menu(options):
-        """Helper method to print a menu given a list of options."""
         for idx, option in enumerate(options, 1):
             print(f"{idx}. {option}")
 
     @staticmethod
     def register_user():
-        """Handle user registration"""
+        #Handle user registration
         name = input("Enter your name: ").strip()
         email = input("Enter your email: ").strip()
         password = input("Enter your password: ").strip()
@@ -42,7 +40,7 @@ class App:
 
     @staticmethod
     def login_user():
-        """Handle user login and display appropriate menus based on role"""
+        #Handle user login and display appropriate menus based on role
         email = input("Enter your email: ").strip()
         password = input("Enter your password: ").strip()
         user = UserController.login_user(email, password)
@@ -58,7 +56,7 @@ class App:
 
     @staticmethod
     def admin_menu():
-        """Admin menu with options to manage products, users, and orders"""
+        #Admin menu with options to manage products, users, and orders
         while True:
             print("\nAdmin Menu")
             App.print_menu(["Manage Products", "Manage Users", "Manage Orders", "Logout"])
@@ -79,7 +77,7 @@ class App:
 
     @staticmethod
     def manage_users():
-        """Submenu for user management"""
+        #Submenu for user management
         while True:
             print("\nUser Management Menu")
             App.print_menu(["View All Users", "View User by ID", "Update User", "Delete User", "Back to Admin Menu"])
@@ -104,7 +102,7 @@ class App:
 
     @staticmethod
     def user_menu(user):
-        """Display the user menu and handle order-related actions."""
+        #Display the user menu and handle order-related actions
         while True:
             print("\nUser Menu")
             App.print_menu(["Place an Order", "View All Orders", "View Order by ID", "Update Order", "Delete Order", "Logout"])
