@@ -7,6 +7,7 @@ class App:
     
     @staticmethod
     def main_menu():
+        """Main menu with options for registration and login"""
         while True:
             print("\n===== Welcome to The Furniture Hub =====")
             App.print_menu(["Register", "Login", "Exit"])
@@ -25,12 +26,13 @@ class App:
 
     @staticmethod
     def print_menu(options):
+        """Helper method to print a menu given a list of options."""
         for idx, option in enumerate(options, 1):
             print(f"{idx}. {option}")
 
     @staticmethod
     def register_user():
-        #Handle user registration
+        """Handle user registration"""
         name = input("Enter your name: ").strip()
         email = input("Enter your email: ").strip()
         password = input("Enter your password: ").strip()
@@ -40,23 +42,22 @@ class App:
 
     @staticmethod
     def login_user():
-        #Handle user login and display appropriate menus based on role
+        """Handle user login and display appropriate menus based on role"""
         email = input("Enter your email: ").strip()
         password = input("Enter your password: ").strip()
         user = UserController.login_user(email, password)
 
         if user:
-            #print(f"Welcome {user['name']}!")
             if user['is_admin']:
-                App.admin_menu()
+                App.admin_menu(user) 
             else:
                 App.user_menu(user)
         else:
             print("Invalid login credentials!")
 
     @staticmethod
-    def admin_menu():
-        #Admin menu with options to manage products, users, and orders
+    def admin_menu(user):
+        """Admin menu with options to manage products, users, and orders"""
         while True:
             print("\nAdmin Menu")
             App.print_menu(["Manage Products", "Manage Users", "Manage Orders", "Logout"])
@@ -69,7 +70,7 @@ class App:
             elif admin_choice == "2":
                 App.manage_users()
             elif admin_choice == "3":
-                OrderController.order_menu()
+                OrderController.order_menu(user)  # Pass the user object to the order_menu
             elif admin_choice == "4":
                 break  # Logout
             else:
@@ -77,7 +78,7 @@ class App:
 
     @staticmethod
     def manage_users():
-        #Submenu for user management
+        """Submenu for user management"""
         while True:
             print("\nUser Management Menu")
             App.print_menu(["View All Users", "View User by ID", "Update User", "Delete User", "Back to Admin Menu"])
@@ -102,7 +103,7 @@ class App:
 
     @staticmethod
     def user_menu(user):
-        #Display the user menu and handle order-related actions
+        """Display the user menu and handle order-related actions."""
         while True:
             print("\nUser Menu")
             App.print_menu(["Place an Order", "View All Orders", "View Order by ID", "Update Order", "Delete Order", "Logout"])
@@ -112,13 +113,13 @@ class App:
             if choice == "1":
                 OrderController.create_order(user['user_id'])
             elif choice == "2":
-                OrderController.get_all_orders()
+                OrderController.get_all_orders(user)
             elif choice == "3":
-                OrderController.get_order_by_id()
+                OrderController.get_order_by_id(user)
             elif choice == "4":
-                OrderController.update_order()
+                OrderController.update_order(user)
             elif choice == "5":
-                OrderController.delete_order()
+                OrderController.delete_order(user)
             elif choice == "6":
                 print("Logging out...")
                 break

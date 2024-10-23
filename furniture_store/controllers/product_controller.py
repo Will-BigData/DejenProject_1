@@ -33,7 +33,7 @@ class ProductController:
                 print("Invalid choice. Please try again")
                 ProductController.product_menu()
             
-            cont = input("\nWould you like to continue managing users? (y/n): ").strip().lower()
+            cont = input("\nWould you like to continue managing products? (y/n): ").strip().lower()
             if cont != 'y':
                 break
 
