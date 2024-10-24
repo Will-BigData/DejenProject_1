@@ -1,7 +1,9 @@
 from DAO.order_dao import OrderDAO
+from DAO.product_dao import ProductDAO  # Assuming you have a product DAO to handle product operations
 from models.order_model import Order, OrderProduct
 
 class OrderController:
+
     @staticmethod
     def order_menu(user):
         while True:
@@ -34,10 +36,9 @@ class OrderController:
             if cont != 'y':
                 break
 
-
     @staticmethod
     def create_order(user_id):
-    #Handles the process of creating an order by filling the cart first and then entering shipping details.
+        #Handles the process of creating an order by filling the cart first and then entering shipping details.
         try:
             print("\nFill your cart:")
             order_items = OrderController.add_to_cart()
@@ -50,6 +51,7 @@ class OrderController:
                     postal_code = input("Enter Postal Code: ").strip()
                     country = input("Enter Country: ").strip()
 
+                    # Place the order
                     OrderController.place_order(user_id, shipping_address, city, postal_code, country, order_items)
                 else:
                     print("Order not placed. You can continue shopping later.")
@@ -58,31 +60,73 @@ class OrderController:
         except Exception as e:
             print(f"Error creating order: {e}")
 
- 
     @staticmethod
     def add_to_cart():
         #Collects product IDs and quantities to add to the cart (order_items list).
         order_items = []
+        total_price = 0  # To calculate the total price of the order
+
         while True:
             try:
                 product_id = int(input("Enter product ID to add to order (0 to finish): ").strip())
                 if product_id == 0:
                     break
+
+                # Fetch the product details from the database
+                product = ProductDAO.get_product_by_id(product_id)
+                if not product:
+                    print(f"Product with ID {product_id} does not exist.")
+                    continue
+
+                product_name = product['name']  # Use dictionary keys instead of indices
+                product_price = product['price']
+                product_in_stock = product['in_stock']
+                print(f"Product: {product_name}, Price: {product_price}, In Stock: {product_in_stock}")
                 quantity = int(input("Enter quantity: ").strip())
-                order_items.append({"product_id": product_id, "quantity": quantity})
+
+                # Check if the requested quantity is available in stock
+                if quantity > product_in_stock:
+                    print(f"Only {product_in_stock} units are available in stock. Please adjust your quantity.")
+                    continue
+
+                # Calculate total price for the current product
+                total_price += product_price * quantity
+
+                order_items.append({
+                    "product_id": product_id,
+                    "quantity": quantity,
+                    "price": product_price,
+                    "name": product_name 
+                })
             except ValueError:
                 print("Invalid entry. Please enter numeric values for product ID and quantity.")
+            except Exception as e:
+                print(f"Error: {e}")
+
+        print(f"Total price for the order: {total_price}")
         return order_items
+
 
     @staticmethod
     def place_order(user_id, shipping_address, city, postal_code, country, order_items):
-        #Places a new order and adds the selected products to the order_items table.
+        #Places a new order and adds the selected products to the order.
         try:
+            # Create an Order object
             order = Order(user_id, shipping_address, city, postal_code, country)
             for item in order_items:
-                order_item = OrderProduct(product_id=item['product_id'], count=item['quantity'])
+                # Ensure that the price is being passed when creating the OrderProduct
+                order_item = OrderProduct(
+                    product_id=item['product_id'],
+                    count=item['quantity'],
+                    price=item['price'],  # Store price for each product in the order
+                    name=item['name']  # Store name for each product in the order
+                )
                 order.add_order_item(order_item)
 
+                # Decrease the stock of the product
+                ProductDAO.decrease_stock(item['product_id'], item['quantity'])
+
+            # Insert the order into the database
             order_id, message = OrderDAO.create_order(order)
 
             if order_id:
@@ -92,29 +136,37 @@ class OrderController:
         except Exception as e:
             print(f"Error placing order: {e}")
 
-
     @staticmethod
     def get_all_orders(user):
-        #Fetches and displays all orders. Regular users can only see their own orders.
+        #Fetches and displays all orders with the order items (products).
         try:
             if user['is_admin']:
                 # Admin can see all orders
                 orders, error = OrderDAO.get_all_orders()
             else:
-                #users see only their own orders
+                # Regular users see only their own orders
                 orders, error = OrderDAO.get_orders_by_user_id(user['user_id'])
 
             if orders:
                 for order in orders:
-                    print(order)
+                    print(f"Order ID: {order['order_id']}, User ID: {order['user_id']}, Shipping Address: {order['shipping_address']}, City: {order['city']}, Postal Code: {order['postal_code']}, Country: {order['country']}")
+                    
+                    # Fetch and display the order items for this order
+                    order_items = OrderDAO.get_order_items_by_order_id(order['order_id'])
+                    if order_items:
+                        for item in order_items:
+                            print(f"   Product ID: {item['product_id']}, Quantity: {item['count']}, Price: {item['price']}")
+                    else:
+                        print("   No items found for this order.")
             else:
                 print(error)
         except Exception as e:
             print(f"Error fetching orders: {e}")
 
+
     @staticmethod
     def get_order_by_id(user):
-        #Fetches and displays a specific order by its ID. Regular users can only view their own orders
+        #Fetches and displays a specific order by its ID, along with the order items.
         try:
             order_id = int(input("Enter Order ID: ").strip())
             order, error = OrderDAO.get_orders_id(order_id)
@@ -122,7 +174,15 @@ class OrderController:
             if order:
                 # Admins can view any order, users can view only their own
                 if user['is_admin'] or order['user_id'] == user['user_id']:
-                    print(order)
+                    print(f"Order ID: {order['order_id']}, User ID: {order['user_id']}, Shipping Address: {order['shipping_address']}, City: {order['city']}, Postal Code: {order['postal_code']}, Country: {order['country']}")
+                    
+                    # Fetch and display the order items for this order
+                    order_items = OrderDAO.get_order_items_by_order_id(order_id)
+                    if order_items:
+                        for item in order_items:
+                            print(f"   Product ID: {item['product_id']}, Quantity: {item['count']}, Price: {item['price']}")
+                    else:
+                        print("   No items found for this order.")
                 else:
                     print("You do not have permission to view this order.")
             else:
@@ -132,7 +192,7 @@ class OrderController:
 
     @staticmethod
     def update_order(user):
-        #Updates an existing order. Only admins or order owners can update
+        #Updates an existing order. Only admins or order owners can update.
         try:
             order_id = input("Enter Order ID to update: ").strip()
             order, _ = OrderDAO.get_orders_id(order_id)
@@ -160,15 +220,23 @@ class OrderController:
             print(f"Error updating order: {e}")
 
     @staticmethod
-    def delete_order():
+    def delete_order(user):
+        #Deletes an order by its ID. Only admins or order owners can delete.
         try:
             order_id = int(input("Enter Order ID to delete: ").strip())
-            deleted = OrderDAO.delete_order(order_id)
+            order, _ = OrderDAO.get_orders_id(order_id)
 
-            if deleted:
-                print(f"Order {order_id} deleted successfully.")
+            if not order:
+                print("Order not found.")
+                return
+
+            if user['is_admin'] or order['user_id'] == user['user_id']:
+                deleted, message = OrderDAO.delete_order(order_id)
+                if deleted:
+                    print(f"Order {order_id} deleted successfully.")
+                else:
+                    print(f"Error deleting order: {message}")
             else:
-                print("Error deleting order.")
-
+                print("You do not have permission to delete this order.")
         except Exception as e:
             print(f"Error deleting order: {e}")

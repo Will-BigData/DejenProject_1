@@ -2,44 +2,42 @@ from mysql.connector import connect, Error
 from db.connection import get_db_connection
 
 class OrderDAO:
-
     @staticmethod
     def create_order(order):
+        """Inserts an order and its associated items into the database."""
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-
             order_query = """ 
             INSERT INTO orders (user_id, shipping_address, city, postal_code, country)
             VALUES (%s, %s, %s, %s, %s) 
             """
             cursor.execute(order_query, order.to_tuple())
-            
             # Fetch the last inserted order_id
             order_id = cursor.lastrowid
 
             # Insert each order item into the order_items table
             item_query = """ 
-            INSERT INTO order_items (order_id, product_id, count)
-            VALUES (%s, %s, %s) 
+            INSERT INTO order_items (order_id, product_id, name, count, price)
+            VALUES (%s, %s, %s, %s, %s) 
             """
             for item in order.order_items:
-                cursor.execute(item_query, (order_id, item.product_id, item.count))
+                cursor.execute(item_query, (order_id, item.product_id, item.name, item.count, item.price))
 
             conn.commit()
             return order_id, None  
 
         except Error as e:
-            # Rollback the transaction if there's an error
             conn.rollback()
             return None, f"Error creating order: {e}"
         finally:
             cursor.close()
             conn.close()
 
+
     @staticmethod
     def get_orders_by_user_id(user_id):
-        #Retrieves  all orders for a specific user by their user_id.
+      #Fetches all orders for a specific user by their user_id.
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
@@ -49,18 +47,19 @@ class OrderDAO:
             orders = cursor.fetchall()
 
             if orders:
-                return orders, None
-            else:
+                return orders, None 
                 return None, "No orders found for user."
+
         except Error as e:
             return None, f"Error fetching orders for user_id {user_id}: {e}"
+
         finally:
             cursor.close()
             conn.close()
 
     @staticmethod
     def get_orders_id(order_id):
-        #retrieves an order and its associated items by order_id."""
+       #Fetches an order and its associated items by order_id.
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
@@ -79,18 +78,33 @@ class OrderDAO:
             order_items = cursor.fetchall()
 
             order_data['items'] = order_items
-            return order_data, None  # Return the order and no error message
-        
+            return order_data, None  
         except Error as e:
             return None, f"Error fetching order by id: {e}"
-        
         finally:
             cursor.close()
             conn.close()
 
     @staticmethod
+    def get_order_items_by_order_id(order_id):
+      #Fetches the order items (products) for a given order ID.
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        try:
+            query = "SELECT * FROM order_items WHERE order_id = %s"
+            cursor.execute(query, (order_id,))
+            return cursor.fetchall()
+        except Exception as e:
+            print(f"Error fetching order items: {e}")
+            return None
+        finally:
+            cursor.close()
+            conn.close()
+
+
+    @staticmethod
     def get_all_orders():
-        #Retrieves  all orders from the database
+        #Fetches all orders from the database.
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
@@ -100,19 +114,18 @@ class OrderDAO:
             orders = cursor.fetchall()
 
             if orders:
-                return orders, None  # Return the orders and no error
+                return orders, None  
             else:
-                return None, "No orders found."  # Return a message when no orders are found
-
+                return None, "No orders found."  
         except Error as e:
-            return None, f"Error fetching orders: {e}"  # Return error message if exception occurs
-
+            return None, f"Error fetching orders: {e}" 
         finally:
             cursor.close()
             conn.close()
 
     @staticmethod
     def update_order(order_id, shipping_address=None, city=None, postal_code=None, country=None):
+        """Updates an existing order."""
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
@@ -158,18 +171,18 @@ class OrderDAO:
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            # Delete the order items first
             item_query = "DELETE FROM order_items WHERE order_id = %s"
             cursor.execute(item_query, (order_id,))
 
-            # Then delete the order
             order_query = "DELETE FROM orders WHERE order_id = %s"
             cursor.execute(order_query, (order_id,))
             conn.commit()
 
-            return cursor.rowcount > 0, None
+            return cursor.rowcount > 0, None 
+        
         except Error as e:
             return False, f"Error deleting order: {e}"
+
         finally:
             cursor.close()
             conn.close()

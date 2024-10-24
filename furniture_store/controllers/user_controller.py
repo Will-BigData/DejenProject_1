@@ -9,8 +9,7 @@ class UserController:
     def register_user(name, email, password, is_admin):
         existing_user = UserDAO.get_user_by_email(email)
         if existing_user:
-            print("User with that email already exists.")
-            return
+            return False, "User with that email already exists."
 
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         user_id = UserDAO.insert_user(name, email, hashed_password.decode(), is_admin)

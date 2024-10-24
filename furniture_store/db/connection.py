@@ -3,9 +3,10 @@ from mysql.connector import Error
 import os
 from dotenv import load_dotenv
 
+_connection_logged = False 
 def get_db_connection():
+    global _connection_logged
     try:
-        # Load environment variables from .env file
         load_dotenv()
 
         # Fetch values from environment variables
@@ -21,9 +22,8 @@ def get_db_connection():
             password=password,
             database=database
         )
-        print(f"Connected to MySQL database: {database}")
+        #print(f"Connected to MySQL database: {database}")
         return connection
-
     except Error as e:
         print(f"Error connecting to the database: {e}")
         return None
