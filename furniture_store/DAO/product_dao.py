@@ -136,6 +136,8 @@ class ProductDAO:
             cursor.close()
             connection.close()
 
+            
+
     @staticmethod
     def decrease_stock(product_id, quantity):
         connection = get_db_connection()

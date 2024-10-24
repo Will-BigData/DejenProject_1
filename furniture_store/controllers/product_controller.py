@@ -73,7 +73,7 @@ class ProductController:
     @staticmethod
     def update_product():
         product_id = input("Enter product ID to update: ")
-        product = ProductDAO.find_product_by_id(product_id)
+        product = ProductDAO.get_product_by_id(product_id)
         if not product:
             print("Product not found.")
             return
@@ -91,3 +91,13 @@ class ProductController:
             print(f"Product '{name}' updated successfully.")
         else:
             print("Error updating product.")
+
+    @staticmethod
+    def delete_product():
+        product_id = int(input("Enter product ID to delete: ").strip())
+        deleted = ProductDAO.delete_product(product_id)
+
+        if deleted:
+            print("Product deleted successfully.")
+        else:
+            print("Error deleting product.")
