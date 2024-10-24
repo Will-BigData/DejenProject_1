@@ -9,7 +9,10 @@ notes.txt
 __pycache__
 ./__pycache__
 ../__pycache__
-
+./app.log
+../app.log
+app.log
+.app.log
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
