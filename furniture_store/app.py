@@ -15,7 +15,6 @@ class App:
             App.print_menu(["Register", "Login", "Exit"])
 
             choice = input("Select an option: ").strip()
-
             if choice == '1':
                 App.register_user()
             elif choice == '2':
@@ -59,7 +58,6 @@ class App:
         email = input("Enter your email: ").strip()
         password = input("Enter your password: ").strip()
         user = UserController.login_user(email, password)
-
         if user:
             logger.info(f"User {email} logged in successfully")
             if user['is_admin']:
@@ -77,10 +75,8 @@ class App:
         while True:
             print("\nAdmin Menu")
             App.print_menu(["Manage Products", "Manage Users", "Manage Orders", "Logout"])
-
             admin_choice = input("Select an option: ").strip()
             print('\n')
-
             if admin_choice == "1":
                 ProductController.product_menu()
             elif admin_choice == "2":
@@ -100,7 +96,6 @@ class App:
         while True:
             print("\nUser Management Menu")
             App.print_menu(["View All Users", "View User by ID", "Update User", "Delete User", "Back to Admin Menu"])
-
             user_choice = input("Enter your choice: ").strip()
 
             if user_choice == "1":
@@ -122,12 +117,13 @@ class App:
 
     @staticmethod
     def user_menu(user):
-        #Display the user menu and handle order-related actions.
+        """Display the user menu and handle order-related actions."""
         logger.info(f"User {user['email']} accessed user menu")
         while True:
             print("\nUser Menu")
             App.print_menu([
-                "View Available Products",   # Option to view products
+                "View Available Products",
+                "View All Order Items",
                 "Place an Order",
                 "View All Orders",
                 "View Order by ID",
@@ -139,23 +135,23 @@ class App:
             choice = input("Enter your choice: ").strip()
 
             if choice == "1":
-                ProductController.get_all_products()  # Fetch and display available products
+                ProductController.get_all_products()
             elif choice == "2":
-                OrderController.create_order(user['user_id'])  # Place an order after viewing products
+                OrderController.view_all_order_items()  # New method to view order items
             elif choice == "3":
-                OrderController.get_all_orders(user)
+                OrderController.create_order(user['user_id'])
             elif choice == "4":
-                OrderController.get_order_by_id(user)
+                OrderController.get_all_orders(user)
             elif choice == "5":
-                OrderController.update_order(user)
+                OrderController.get_order_by_id(user)
             elif choice == "6":
-                OrderController.delete_order(user)
+                OrderController.update_order(user)
             elif choice == "7":
-                logger.info(f"User {user['email']} logged out")
+                OrderController.delete_order(user)
+            elif choice == "8":
                 print("Logging out...")
                 break
             else:
-                logger.warning("Invalid choice entered in user menu")
                 print("Invalid choice. Please try again.")
 
 

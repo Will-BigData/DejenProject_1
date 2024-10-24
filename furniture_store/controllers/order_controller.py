@@ -1,7 +1,8 @@
 from DAO.order_dao import OrderDAO
-from DAO.product_dao import ProductDAO  # Assuming you have a product DAO to handle product operations
+from DAO.product_dao import ProductDAO
 from models.order_model import Order, OrderProduct
-from display import OrderDisplay 
+from display import OrderDisplay, OrderItemsDisplay
+
 
 class OrderController:
 
@@ -15,7 +16,6 @@ class OrderController:
             print("4. Update Order")
             print("5. Delete Order")
             print("6. Back to Main Menu")
-
             choice = input("Enter your choice: ").strip()
 
             if choice == "1":
@@ -43,7 +43,6 @@ class OrderController:
         try:
             print("\nFill your cart:")
             order_items = OrderController.add_to_cart()
-
             if order_items:
                 proceed_to_checkout = input("\nAre you ready to check out? (y/n): ").strip().lower()
                 if proceed_to_checkout == 'y':
@@ -65,7 +64,7 @@ class OrderController:
     def add_to_cart():
         #Collects product IDs and quantities to add to the cart (order_items list).
         order_items = []
-        total_price = 0  # To calculate the total price of the order
+        total_price = 0
 
         while True:
             try:
@@ -73,19 +72,18 @@ class OrderController:
                 if product_id == 0:
                     break
 
-                # Fetch the product details from the database
                 product = ProductDAO.get_product_by_id(product_id)
                 if not product:
                     print(f"Product with ID {product_id} does not exist.")
                     continue
 
-                product_name = product['name']  # Use dictionary keys instead of indices
+                # Use dictionary keys instead of indices
+                product_name = product['name']  
                 product_price = product['price']
                 product_in_stock = product['in_stock']
                 print(f"Product: {product_name}, Price: {product_price}, In Stock: {product_in_stock}")
                 quantity = int(input("Enter quantity: ").strip())
 
-                # Check if the requested quantity is available in stock
                 if quantity > product_in_stock:
                     print(f"Only {product_in_stock} units are available in stock. Please adjust your quantity.")
                     continue
@@ -112,24 +110,19 @@ class OrderController:
     def place_order(user_id, shipping_address, city, postal_code, country, order_items):
         #Places a new order and adds the selected products to the order.
         try:
-            # Create an Order object
             order = Order(user_id, shipping_address, city, postal_code, country)
             for item in order_items:
-                # Ensure that the price is being passed when creating the OrderProduct
                 order_item = OrderProduct(
                     product_id=item['product_id'],
                     count=item['quantity'],
-                    price=item['price'],  # Store price for each product in the order
-                    name=item['name']  # Store name for each product in the order
+                    price=item['price'],
+                    name=item['name']
                 )
                 order.add_order_item(order_item)
-
-                # Decrease the stock of the product
                 ProductDAO.decrease_stock(item['product_id'], item['quantity'])
 
             # Insert the order into the database
             order_id, message = OrderDAO.create_order(order)
-
             if order_id:
                 print(f"Order placed successfully with ID {order_id}.")
             else:
@@ -145,9 +138,7 @@ class OrderController:
                 orders, error = OrderDAO.get_all_orders()
             else:
                 orders, error = OrderDAO.get_orders_by_user_id(user['user_id'])
-
             if orders:
-                # Display the orders using the display method
                 OrderDisplay.display_orders_table(orders)
             else:
                 print(error)
@@ -160,11 +151,10 @@ class OrderController:
         try:
             order_id = int(input("Enter Order ID: ").strip())
             order, error = OrderDAO.get_orders_id(order_id)
-
             if order:
                 if user['is_admin'] or order['user_id'] == user['user_id']:
                     print(f"Order ID: {order['order_id']}, User ID: {order['user_id']}, Shipping Address: {order['shipping_address']}, City: {order['city']}, Postal Code: {order['postal_code']}, Country: {order['country']}")
-                    
+
                     order_items = OrderDAO.get_order_items_by_order_id(order_id)
                     if order_items:
                         for item in order_items:
@@ -177,6 +167,17 @@ class OrderController:
                 print(error)
         except Exception as e:
             print(f"Error fetching order: {e}")
+
+
+    @staticmethod
+    def view_all_order_items():
+        """Fetches and displays all order items."""
+        order_items, error = OrderDAO.get_all_order_items()
+        if order_items:
+            OrderItemsDisplay.display_order_items_table(order_items)
+        else:
+            print(f"Error fetching order items: {error}")
+
 
     @staticmethod
     def update_order(user):
@@ -209,7 +210,7 @@ class OrderController:
 
     @staticmethod
     def delete_order(user):
-        #Deletes an order by its ID. Only admins or order owners can delete.
+        #Deletes an order by its ID.
         try:
             order_id = int(input("Enter Order ID to delete: ").strip())
             order, _ = OrderDAO.get_orders_id(order_id)

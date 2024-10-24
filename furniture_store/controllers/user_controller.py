@@ -10,10 +10,8 @@ class UserController:
         existing_user = UserDAO.get_user_by_email(email)
         if existing_user:
             return False, "User with that email already exists."
-
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         user_id = UserDAO.insert_user(name, email, hashed_password.decode(), is_admin)
-
         if user_id:
             return True, f"User {name} registered successfully!"
         else:
@@ -50,10 +48,8 @@ class UserController:
         name = input("Enter new name: ").strip()
         email = input("Enter new email: ").strip()
         password = input("Enter new password (leave blank to keep current): ").strip()
-
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode() if password else None
         updated = UserDAO.update_user(user_id, name, email, hashed_password)
-
         if updated:
             print("User updated successfully.")
         else:
@@ -61,9 +57,7 @@ class UserController:
 
     @staticmethod
     def delete_user(user_id):
-
         deleted = UserDAO.delete_user(user_id)
-
         if deleted:
             print("User deleted successfully.")
         else:
