@@ -41,7 +41,8 @@ class App:
         name = input("Enter your name: ").strip()
         email = input("Enter your email: ").strip()
         password = input("Enter your password: ").strip()
-        is_admin = input("Are you an admin? (y/n): ").strip().lower() == "y"
+        #is_admin = input("Are you an admin? (y/n): ").strip().lower() == "y"
+        is_admin = False
 
         success, message = UserController.register_user(name, email, password, is_admin)
         if success:

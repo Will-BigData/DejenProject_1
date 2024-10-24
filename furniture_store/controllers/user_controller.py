@@ -15,9 +15,9 @@ class UserController:
         user_id = UserDAO.insert_user(name, email, hashed_password.decode(), is_admin)
 
         if user_id:
-            print(f"User {name} registered successfully!")
+            return True, f"User {name} registered successfully!"
         else:
-            print("Error registering user.")
+            return False, "Error registering user." 
 
     @staticmethod
     def login_user(email, password):

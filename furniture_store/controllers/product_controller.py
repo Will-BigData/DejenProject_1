@@ -1,6 +1,6 @@
 from DAO.product_dao import ProductDAO
 from models.product_model import Product
-
+from display import ProductDisplay 
 
 class ProductController:
 
@@ -56,8 +56,7 @@ class ProductController:
     def get_all_products():
         products = ProductDAO.get_all_products()
         if products:
-            for product in products:
-                print(product)
+            ProductDisplay.display_products_table(products) 
         else:
             print("No products found")
     
@@ -65,8 +64,9 @@ class ProductController:
     def get_product_by_id():
         product_id = int(input("Enter product ID: ").strip())
         product = ProductDAO.get_product_by_id(product_id)
+        
         if product:
-            print(product)
+            ProductDisplay.display_products_table([product]) 
         else:
             print("Product not found")
     

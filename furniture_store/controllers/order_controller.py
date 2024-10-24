@@ -1,6 +1,7 @@
 from DAO.order_dao import OrderDAO
 from DAO.product_dao import ProductDAO  # Assuming you have a product DAO to handle product operations
 from models.order_model import Order, OrderProduct
+from display import OrderDisplay 
 
 class OrderController:
 
@@ -138,26 +139,16 @@ class OrderController:
 
     @staticmethod
     def get_all_orders(user):
-        #Fetches and displays all orders with the order items (products).
+        """Fetches and displays all orders."""
         try:
             if user['is_admin']:
-                # Admin can see all orders
                 orders, error = OrderDAO.get_all_orders()
             else:
-                # Regular users see only their own orders
                 orders, error = OrderDAO.get_orders_by_user_id(user['user_id'])
 
             if orders:
-                for order in orders:
-                    print(f"Order ID: {order['order_id']}, User ID: {order['user_id']}, Shipping Address: {order['shipping_address']}, City: {order['city']}, Postal Code: {order['postal_code']}, Country: {order['country']}")
-                    
-                    # Fetch and display the order items for this order
-                    order_items = OrderDAO.get_order_items_by_order_id(order['order_id'])
-                    if order_items:
-                        for item in order_items:
-                            print(f"   Product ID: {item['product_id']}, Quantity: {item['count']}, Price: {item['price']}")
-                    else:
-                        print("   No items found for this order.")
+                # Display the orders using the display method
+                OrderDisplay.display_orders_table(orders)
             else:
                 print(error)
         except Exception as e:
@@ -166,17 +157,14 @@ class OrderController:
 
     @staticmethod
     def get_order_by_id(user):
-        #Fetches and displays a specific order by its ID, along with the order items.
         try:
             order_id = int(input("Enter Order ID: ").strip())
             order, error = OrderDAO.get_orders_id(order_id)
 
             if order:
-                # Admins can view any order, users can view only their own
                 if user['is_admin'] or order['user_id'] == user['user_id']:
                     print(f"Order ID: {order['order_id']}, User ID: {order['user_id']}, Shipping Address: {order['shipping_address']}, City: {order['city']}, Postal Code: {order['postal_code']}, Country: {order['country']}")
                     
-                    # Fetch and display the order items for this order
                     order_items = OrderDAO.get_order_items_by_order_id(order_id)
                     if order_items:
                         for item in order_items:
