@@ -161,11 +161,14 @@ class OrderDAO:
             if country:
                 fields.append("country = %s")
                 values.append(country)
+
             values.append(order_id)
+
             query = f"UPDATE orders SET {', '.join(fields)} WHERE order_id = %s"
             cursor.execute(query, values)
             conn.commit()
-            return True, None if cursor.rowcount > 0 else False, "No changes made."
+
+            return cursor.rowcount > 0, None 
         except Error as e:
             return False, f"Error updating order: {e}"
         finally:

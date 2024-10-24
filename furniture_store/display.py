@@ -2,17 +2,19 @@
 from tabulate import tabulate
 
 class UserDisplay:
+
     @staticmethod
     def display_users_table(users):
         """Displays all users in a table format."""
         table = []
         for idx, user in enumerate(users):
-            user_id = user['user_id']
-            name = user['name']
-            email = user['email']
-            is_admin = "Yes" if user['is_admin'] else "No"
-
-            table.append([idx + 1, user_id, name, email, is_admin])
+            table.append([
+                idx + 1,
+                user['user_id'],
+                user['name'],
+                user['email'],
+                "Yes" if user['is_admin'] else "No"  
+            ])
 
         headers = ['No.', 'User ID', 'Name', 'Email', 'Admin']
         print(tabulate(table, headers, tablefmt="fancy_grid"))

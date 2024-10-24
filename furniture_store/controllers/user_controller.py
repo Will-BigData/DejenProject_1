@@ -1,25 +1,40 @@
 
-
+import re
 import bcrypt
 from DAO.user_dao import UserDAO
+from display import UserDisplay
 
 class UserController:
 
     @staticmethod
+    def is_valid_email(email):
+        """Validate email format using regex."""
+        pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        return re.match(pattern, email) is not None
+
+    @staticmethod
     def register_user(name, email, password, is_admin):
+        # Validate email format
+        if not UserController.is_valid_email(email):
+            return False, "Invalid email format."
+
+        # Check if the email already exists
         existing_user = UserDAO.get_user_by_email(email)
         if existing_user:
             return False, "User with that email already exists."
+
+        # Hash the password
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
         user_id = UserDAO.insert_user(name, email, hashed_password.decode(), is_admin)
         if user_id:
             return True, f"User {name} registered successfully!"
         else:
-            return False, "Error registering user." 
+            return False, "Error registering user."
 
     @staticmethod
     def login_user(email, password):
-        #Method to login a user with email and password
+        # Method to login a user with email and password
         user_data = UserDAO.get_user_by_email(email)
 
         if user_data:
@@ -67,7 +82,6 @@ class UserController:
     def get_all_users():
         users = UserDAO.get_all_users()
         if users:
-            for user in users:
-                print(f"ID: {user['user_id']}, Name: {user['name']}, Email: {user['email']}, Admin: {user['is_admin']}")
+            UserDisplay.display_users_table(users)
         else:
             print("No users found")

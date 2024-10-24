@@ -1,6 +1,6 @@
 
 import sys
-from logging_config import logger  # Updated import for the logger
+from logging_config import logger
 from controllers.user_controller import UserController
 from controllers.product_controller import ProductController
 from controllers.order_controller import OrderController

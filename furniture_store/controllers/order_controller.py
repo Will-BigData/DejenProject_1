@@ -5,7 +5,6 @@ from display import OrderDisplay, OrderItemsDisplay
 
 
 class OrderController:
-
     @staticmethod
     def order_menu(user):
         while True:
@@ -39,10 +38,11 @@ class OrderController:
 
     @staticmethod
     def create_order(user_id):
-        #Handles the process of creating an order by filling the cart first and then entering shipping details.
+        # Handles the process of creating an order by filling the cart first and then entering shipping details.
         try:
             print("\nFill your cart:")
-            order_items = OrderController.add_to_cart()
+            order_items, total_price = OrderController.add_to_cart()  # Include total price
+
             if order_items:
                 proceed_to_checkout = input("\nAre you ready to check out? (y/n): ").strip().lower()
                 if proceed_to_checkout == 'y':
@@ -52,7 +52,7 @@ class OrderController:
                     country = input("Enter Country: ").strip()
 
                     # Place the order
-                    OrderController.place_order(user_id, shipping_address, city, postal_code, country, order_items)
+                    OrderController.place_order(user_id, shipping_address, city, postal_code, country, order_items, total_price)
                 else:
                     print("Order not placed. You can continue shopping later.")
             else:
@@ -62,7 +62,7 @@ class OrderController:
 
     @staticmethod
     def add_to_cart():
-        #Collects product IDs and quantities to add to the cart (order_items list).
+        # Collects product IDs and quantities to add to the cart (order_items list).
         order_items = []
         total_price = 0
 
@@ -77,8 +77,7 @@ class OrderController:
                     print(f"Product with ID {product_id} does not exist.")
                     continue
 
-                # Use dictionary keys instead of indices
-                product_name = product['name']  
+                product_name = product['name']
                 product_price = product['price']
                 product_in_stock = product['in_stock']
                 print(f"Product: {product_name}, Price: {product_price}, In Stock: {product_in_stock}")
@@ -95,27 +94,26 @@ class OrderController:
                     "product_id": product_id,
                     "quantity": quantity,
                     "price": product_price,
-                    "name": product_name 
+                    "name": product_name
                 })
             except ValueError:
                 print("Invalid entry. Please enter numeric values for product ID and quantity.")
             except Exception as e:
                 print(f"Error: {e}")
 
-        print(f"Total price for the order: {total_price}")
-        return order_items
-
+        print(f"Total price for the order: {total_price:.2f}")
+        return order_items, total_price  # Return total_price as well
 
     @staticmethod
-    def place_order(user_id, shipping_address, city, postal_code, country, order_items):
-        #Places a new order and adds the selected products to the order.
+    def place_order(user_id, shipping_address, city, postal_code, country, order_items, total_price):
+        # Places a new order and adds the selected products to the order.
         try:
             order = Order(user_id, shipping_address, city, postal_code, country)
             for item in order_items:
                 order_item = OrderProduct(
                     product_id=item['product_id'],
                     count=item['quantity'],
-                    price=item['price'],
+                    price=item['price']* item['quantity'],
                     name=item['name']
                 )
                 order.add_order_item(order_item)
@@ -124,11 +122,12 @@ class OrderController:
             # Insert the order into the database
             order_id, message = OrderDAO.create_order(order)
             if order_id:
-                print(f"Order placed successfully with ID {order_id}.")
+                print(f"Order placed successfully with ID {order_id}. Total price: {total_price:.2f}")
             else:
                 print(f"Error placing order: {message}")
         except Exception as e:
             print(f"Error placing order: {e}")
+
 
     @staticmethod
     def get_all_orders(user):
@@ -196,8 +195,9 @@ class OrderController:
                 postal_code = input(f"Enter new postal code (current: {order['postal_code']}): ").strip() or order['postal_code']
                 country = input(f"Enter new country (current: {order['country']}): ").strip() or order['country']
 
-                updated_order = Order(order['user_id'], shipping_address, city, postal_code, country)
-                updated, message = OrderDAO.update_order(order_id, updated_order)
+               # updated_order = Order(order['user_id'], shipping_address, city, postal_code, country)
+                #updated, message = OrderDAO.update_order(order_id, updated_order)
+                updated, message = OrderDAO.update_order(order_id, shipping_address, city, postal_code, country)
 
                 if updated:
                     print(f"Order '{order_id}' updated successfully.")
