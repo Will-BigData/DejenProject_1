@@ -65,7 +65,6 @@ class OrderController:
         # Collects product IDs and quantities to add to the cart (order_items list).
         order_items = []
         total_price = 0
-
         while True:
             try:
                 product_id = int(input("Enter product ID to add to order (0 to finish): ").strip())
@@ -118,8 +117,6 @@ class OrderController:
                 )
                 order.add_order_item(order_item)
                 ProductDAO.decrease_stock(item['product_id'], item['quantity'])
-
-            # Insert the order into the database
             order_id, message = OrderDAO.create_order(order)
             if order_id:
                 print(f"Order placed successfully with ID {order_id}. Total price: {total_price:.2f}")
@@ -127,7 +124,6 @@ class OrderController:
                 print(f"Error placing order: {message}")
         except Exception as e:
             print(f"Error placing order: {e}")
-
 
     @staticmethod
     def get_all_orders(user):
@@ -143,7 +139,6 @@ class OrderController:
                 print(error)
         except Exception as e:
             print(f"Error fetching orders: {e}")
-
 
     @staticmethod
     def get_order_by_id(user):
@@ -167,7 +162,6 @@ class OrderController:
         except Exception as e:
             print(f"Error fetching order: {e}")
 
-
     @staticmethod
     def view_all_order_items():
         """Fetches and displays all order items."""
@@ -177,27 +171,36 @@ class OrderController:
         else:
             print(f"Error fetching order items: {error}")
 
-
     @staticmethod
     def update_order(user):
-        #Updates an existing order. Only admins or order owners can update.
+        """Updates an existing order. Only admins or order owners can update."""
         try:
             order_id = input("Enter Order ID to update: ").strip()
-            order, _ = OrderDAO.get_orders_id(order_id)
+            order, error = OrderDAO.get_orders_id(order_id)
 
             if not order:
                 print("Order not found.")
                 return
 
+            # Check permission to update
             if user['is_admin'] or order['user_id'] == user['user_id']:
+                # Get updated shipping details
                 shipping_address = input(f"Enter new shipping address (current: {order['shipping_address']}): ").strip() or order['shipping_address']
                 city = input(f"Enter new city (current: {order['city']}): ").strip() or order['city']
                 postal_code = input(f"Enter new postal code (current: {order['postal_code']}): ").strip() or order['postal_code']
                 country = input(f"Enter new country (current: {order['country']}): ").strip() or order['country']
 
-               # updated_order = Order(order['user_id'], shipping_address, city, postal_code, country)
-                #updated, message = OrderDAO.update_order(order_id, updated_order)
-                updated, message = OrderDAO.update_order(order_id, shipping_address, city, postal_code, country)
+                # Fetch current order items for count updates
+                items = []
+                for item in order['items']:
+                    item_id = item['product_id']
+                    current_count = item['count']
+                    new_count = input(f"Enter new count for product {item_id} (current: {current_count}): ").strip()
+                    if new_count:
+                        items.append({"item_id": item_id, "count": int(new_count)})
+                
+                # Call DAO update method
+                updated, message = OrderDAO.update_order(order_id, shipping_address, city, postal_code, country, items)
 
                 if updated:
                     print(f"Order '{order_id}' updated successfully.")
@@ -214,11 +217,9 @@ class OrderController:
         try:
             order_id = int(input("Enter Order ID to delete: ").strip())
             order, _ = OrderDAO.get_orders_id(order_id)
-
             if not order:
                 print("Order not found.")
                 return
-
             if user['is_admin'] or order['user_id'] == user['user_id']:
                 deleted, message = OrderDAO.delete_order(order_id)
                 if deleted:

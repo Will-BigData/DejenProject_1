@@ -13,10 +13,8 @@ class OrderDAO:
             VALUES (%s, %s, %s, %s, %s) 
             """
             cursor.execute(order_query, order.to_tuple())
-            # Fetch the last inserted order_id
             order_id = cursor.lastrowid
 
-            # Insert each order item into the order_items table
             item_query = """ 
             INSERT INTO order_items (order_id, product_id, name, count, price)
             VALUES (%s, %s, %s, %s, %s) 
@@ -47,10 +45,8 @@ class OrderDAO:
             if orders:
                 return orders, None 
                 return None, "No orders found for user."
-
         except Error as e:
             return None, f"Error fetching orders for user_id {user_id}: {e}"
-
         finally:
             cursor.close()
             conn.close()
@@ -95,7 +91,6 @@ class OrderDAO:
             cursor.close()
             conn.close()
 
-
     @staticmethod
     def get_all_orders():
         try:
@@ -115,7 +110,6 @@ class OrderDAO:
             cursor.close()
             conn.close()
 
-
     @staticmethod
     def get_all_order_items():
         """Fetches all order items from the database."""
@@ -130,9 +124,7 @@ class OrderDAO:
             """
             cursor.execute(query)
             order_items = cursor.fetchall()
-
-            return order_items, None  # Return all order items with no error
-
+            return order_items, None  
         except Error as e:
             return None, f"Error fetching order items: {e}"
         finally:
@@ -140,13 +132,13 @@ class OrderDAO:
             conn.close()
 
     @staticmethod
-    def update_order(order_id, shipping_address=None, city=None, postal_code=None, country=None):
-        """Updates an existing order."""
+    def update_order(order_id, shipping_address=None, city=None, postal_code=None, country=None, items=None):
+        """Updates an existing order and optionally updates the count of items."""
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            # Prepare the SQL query dynamically based on what fields need updating
+            # Prepare the SQL query dynamically for the orders table
             fields = []
             values = []
             if shipping_address:
@@ -162,14 +154,25 @@ class OrderDAO:
                 fields.append("country = %s")
                 values.append(country)
 
-            values.append(order_id)
+            # Update orders table if there are fields to update
+            if fields:
+                query = f"UPDATE orders SET {', '.join(fields)} WHERE order_id = %s"
+                values.append(order_id)
+                cursor.execute(query, values)
 
-            query = f"UPDATE orders SET {', '.join(fields)} WHERE order_id = %s"
-            cursor.execute(query, values)
+            # Update order_items table if item counts are provided
+            if items:
+                for item in items:
+                    item_id = item.get("item_id")
+                    count = item.get("count")
+                    if item_id and count is not None:
+                        item_query = "UPDATE order_items SET count = %s WHERE order_id = %s AND product_id = %s"
+                        cursor.execute(item_query, (count, order_id, item_id))
             conn.commit()
+            return cursor.rowcount > 0, None
 
-            return cursor.rowcount > 0, None 
         except Error as e:
+            conn.rollback()
             return False, f"Error updating order: {e}"
         finally:
             cursor.close()

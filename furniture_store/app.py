@@ -1,5 +1,6 @@
 
 import sys
+from colorama import Fore, Style, Back
 from logging_config import logger
 from controllers.user_controller import UserController
 from controllers.product_controller import ProductController
@@ -11,9 +12,11 @@ class App:
     def main_menu():
         logger.info("Displaying main menu")
         while True:
-            print("\n===== Welcome to The Furniture Hub =====")
+            print("\n")
+            print(Fore.GREEN + Style.BRIGHT + f"{'===== Welcome to The Furniture Hub ===== ':^90}")
+            print(Style.RESET_ALL)
+            print("Please login or register to continue.")
             App.print_menu(["Register", "Login", "Exit"])
-
             choice = input("Select an option: ").strip()
             if choice == '1':
                 App.register_user()
@@ -73,6 +76,9 @@ class App:
         #Admin menu with options to manage products, users, and orders
         logger.info(f"Admin {user['email']} accessed admin menu")
         while True:
+            print("\n")
+            print(Fore.GREEN + Style.BRIGHT + f"{'===== Admin Dashboard ===== ':^90}")
+            print(Style.RESET_ALL)
             print("\nAdmin Menu")
             App.print_menu(["Manage Products", "Manage Users", "Manage Orders", "Logout"])
             admin_choice = input("Select an option: ").strip()
@@ -117,9 +123,13 @@ class App:
 
     @staticmethod
     def user_menu(user):
-        """Display the user menu and handle order-related actions."""
+        #Display the user menu and handle order-related actions.
         logger.info(f"User {user['email']} accessed user menu")
         while True:
+            print("\n")
+            print(Fore.GREEN + Style.BRIGHT + f"{'===== User Dashboard ===== ':^90}")
+            print(Style.RESET_ALL)
+            print("Please check the available products before placing an order.")
             print("\nUser Menu")
             App.print_menu([
                 "View Available Products",
@@ -153,8 +163,7 @@ class App:
                 break
             else:
                 print("Invalid choice. Please try again.")
-
-
+                logger.warning("Invalid choice entered in user menu")
 if __name__ == "__main__":
     logger.info("Application started")
     App.main_menu()
