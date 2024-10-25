@@ -64,28 +64,37 @@ class UserDAO:
                 conn.close()
 
     @staticmethod
-    def update_user(user_id, name, email, password=None):
+    def update_user(user_id, name, email, hashed_password=None, is_admin=None):
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
         try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
+            # Build the update query dynamically based on which fields are updated
+            query = "UPDATE users SET name = %s, email = %s"
+            values = [name, email]
 
-            if password:
-                query = "UPDATE users SET name = %s, email = %s, password = %s WHERE user_id = %s"
-                cursor.execute(query, (name, email, password, user_id))
-            else:
-                query = "UPDATE users SET name = %s, email = %s WHERE user_id = %s"
-                cursor.execute(query, (name, email, user_id))
+            if hashed_password:
+                query += ", password = %s"
+                values.append(hashed_password)
 
-            conn.commit()
-            return cursor.rowcount > 0
-        except Error as e:
+            if is_admin is not None:  # Only update is_admin if the admin wants to change it
+                query += ", is_admin = %s"
+                values.append(is_admin)
+
+            query += " WHERE user_id = %s"
+            values.append(user_id)
+
+            cursor.execute(query, values)
+            connection.commit()
+            return cursor.rowcount > 0  # Return True if the update affected any rows
+        except Exception as e:
             print(f"Error updating user: {e}")
             return False
         finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
+            cursor.close()
+
+
+
 
     @staticmethod
     def delete_user(user_id):
