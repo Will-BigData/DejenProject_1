@@ -1,5 +1,6 @@
 ## Introduction
-This is an online shopping app called The Furniture Hub. This app is designed to help users to buy furniture online
+This is an online shopping app called The Furniture Hub. This app is designed to help users to buy furniture online.
+
 
 # Features
 ## As a user, I can:
