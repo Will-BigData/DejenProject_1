@@ -63,8 +63,6 @@ class UserController:
         name = input("Enter new name: ").strip()
         email = input("Enter new email: ").strip()
         password = input("Enter new password (leave blank to keep current): ").strip()
-        
-        # Prompt to update the admin status
         is_admin_input = input("Is this user an admin? (yes/no, leave blank to keep current): ").strip().lower()
         
         if is_admin_input == 'yes':
@@ -72,12 +70,10 @@ class UserController:
         elif is_admin_input == 'no':
             is_admin = False
         else:
-            is_admin = None  # Indicates we will keep the current value
+            is_admin = None
 
         # Hash the new password only if provided
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode() if password else None
-        
-        # Call DAO to update the user (make sure UserDAO.update_user is updated to handle is_admin)
         updated = UserDAO.update_user(user_id, name, email, hashed_password, is_admin)
         
         if updated:

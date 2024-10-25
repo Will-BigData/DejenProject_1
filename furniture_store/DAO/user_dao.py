@@ -67,17 +67,14 @@ class UserDAO:
     def update_user(user_id, name, email, hashed_password=None, is_admin=None):
         connection = get_db_connection()
         cursor = connection.cursor()
-
         try:
-            # Build the update query dynamically based on which fields are updated
             query = "UPDATE users SET name = %s, email = %s"
             values = [name, email]
 
             if hashed_password:
                 query += ", password = %s"
                 values.append(hashed_password)
-
-            if is_admin is not None:  # Only update is_admin if the admin wants to change it
+            if is_admin is not None: 
                 query += ", is_admin = %s"
                 values.append(is_admin)
 
@@ -86,15 +83,11 @@ class UserDAO:
 
             cursor.execute(query, values)
             connection.commit()
-            return cursor.rowcount > 0  # Return True if the update affected any rows
-        except Exception as e:
+            return cursor.rowcount > 0 
             print(f"Error updating user: {e}")
             return False
         finally:
             cursor.close()
-
-
-
 
     @staticmethod
     def delete_user(user_id):
