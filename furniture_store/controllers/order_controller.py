@@ -161,6 +161,7 @@ class OrderController:
                 print(error)
         except Exception as e:
             print(f"Error fetching order: {e}")
+         
 
     @staticmethod
     def view_all_order_items():
@@ -170,6 +171,8 @@ class OrderController:
             OrderItemsDisplay.display_order_items_table(order_items)
         else:
             print(f"Error fetching order items: {error}")
+
+
 
     @staticmethod
     def update_order(user):

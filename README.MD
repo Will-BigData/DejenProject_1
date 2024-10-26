@@ -1,6 +1,7 @@
 ## Introduction
 This is an online shopping app called The Furniture Hub. This app is designed to help users to buy furniture online.
-
+### ERD
+![ERD](furniture_store/erd_pp/ERD.png)
 
 # Features
 ## As a user, I can:
@@ -23,3 +24,12 @@ This is an online shopping app called The Furniture Hub. This app is designed to
 - python
 - Git
 - Github
+
+# Feature enhancement
+- Add a payment gateway
+- Add a search bar
+- Add a filter option
+- Add a review section
+- Add a rating section
+- Add a chatbot
+- Add a wishlist

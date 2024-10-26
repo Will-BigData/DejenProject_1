@@ -164,6 +164,7 @@ class App:
             else:
                 print("Invalid choice. Please try again.")
                 logger.warning("Invalid choice entered in user menu")
+
 if __name__ == "__main__":
     logger.info("Application started")
     App.main_menu()
